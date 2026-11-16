@@ -1,43 +1,102 @@
-from sinhvien import (
-    them_sinh_vien,
-    hien_thi_sinh_vien,
-    tim_sinh_vien,
-    xoa_sinh_vien,
-    sua_sinh_vien,
-)
+"""Chuong trinh quan ly dao tao - dang nhap theo vai tro (Admin / Giang vien / Sinh vien)."""
+from dulieu import tai, phien, bam, du_lieu, ghi_log, nap_du_lieu_mau
+import sinhvien
+import daotao
+import dean
+import thuattoan
+import baocao
 
-MENU = """
-===== QUAN LY SINH VIEN =====
-1. Them sinh vien
-2. Hien thi danh sach
-3. Tim sinh vien theo ma
-4. Xoa sinh vien theo ma
-5. Sua thong tin sinh vien
-0. Thoat
-=============================
-"""
+TIEU_DE = {"admin": "PHONG DAO TAO", "giang_vien": "GIANG VIEN", "sinh_vien": "SINH VIEN"}
 
-CHUC_NANG = {
-    "1": them_sinh_vien,
-    "2": hien_thi_sinh_vien,
-    "3": tim_sinh_vien,
-    "4": xoa_sinh_vien,
-    "5": sua_sinh_vien,
-}
+
+def menu_theo_vai_tro(tk):
+    ten, vai_tro = tk["ten_dn"], tk["vai_tro"]
+    if vai_tro == "admin":
+        return [
+            ("Them sinh vien", sinhvien.them_sinh_vien),
+            ("Hien thi danh sach sinh vien", sinhvien.hien_thi_sinh_vien),
+            ("Tim sinh vien theo ma", sinhvien.tim_sinh_vien),
+            ("Xoa sinh vien theo ma", sinhvien.xoa_sinh_vien),
+            ("Sua thong tin sinh vien", sinhvien.sua_sinh_vien),
+            ("Them mon hoc vao khung chuong trinh", daotao.them_mon_hoc),
+            ("Xem khung chuong trinh", daotao.hien_thi_mon_hoc),
+            ("Canh bao hoc vu (xuat danh sach cho co van)", daotao.canh_bao_hoc_vu),
+            ("Nhap danh sach sinh vien tu CSV", baocao.nhap_csv_sinh_vien),
+            ("Xuat bang diem ra CSV", baocao.xuat_bang_diem_csv),
+            ("Dashboard thong ke", baocao.dashboard),
+            ("Xep lich thi (to mau do thi)", thuattoan.xep_lich_thi),
+            ("Tra cuu nhanh (BST / bang bam)", thuattoan.tra_cuu_nhanh),
+            ("So sanh toc do tim kiem", thuattoan.so_sanh_toc_do),
+            ("Xem tat ca de tai do an", lambda: dean.xem_tien_do_do_an()),
+            ("Xem nhat ky thao tac (audit log)", baocao.xem_audit_log),
+            ("Nap du lieu mau de thu nghiem", nap_du_lieu_mau),
+        ]
+    if vai_tro == "giang_vien":
+        return [
+            ("Nhap / sua diem", daotao.nhap_diem),
+            ("Xem diem sinh vien", daotao.xem_diem),
+            ("Canh bao hoc vu", daotao.canh_bao_hoc_vu),
+            ("Duyet de tai do an", lambda: dean.gv_duyet_de_tai(ten)),
+            ("Cham bao cao do an", lambda: dean.gv_cham_bao_cao(ten)),
+            ("Xem do an minh huong dan", lambda: dean.xem_tien_do_do_an(gv=ten)),
+            ("Xem khung chuong trinh", daotao.hien_thi_mon_hoc),
+        ]
+    return [
+        ("Xem diem va GPA", lambda: daotao.xem_diem(ten)),
+        ("Goi y dang ky mon", lambda: daotao.goi_y_dang_ky(ten)),
+        ("Dang ky mon hoc", lambda: daotao.dang_ky_mon(ten)),
+        ("Tien do tot nghiep", lambda: daotao.tien_do_tot_nghiep(ten)),
+        ("De xuat de tai do an", lambda: dean.de_xuat_de_tai(ten)),
+        ("Nop bao cao do an", lambda: dean.nop_bao_cao(ten)),
+        ("Xem tien do do an", lambda: dean.xem_tien_do_do_an(ma_sv=ten)),
+        ("Xem khung chuong trinh", daotao.hien_thi_mon_hoc),
+    ]
+
+
+def dang_nhap():
+    print("Tai khoan mac dinh: admin/admin123 | gv01/gv123 | sinh vien: <ma_sv>/123456")
+    for _ in range(3):
+        ten = input("Ten dang nhap: ").strip()
+        mat_khau = input("Mat khau: ")
+        for tk in du_lieu["tai_khoan"]:
+            if tk["ten_dn"] == ten and tk["mat_khau"] == bam(mat_khau):
+                return tk
+        print("Sai ten dang nhap hoac mat khau.")
+    return None
+
+
+def chay_menu(tk):
+    muc = menu_theo_vai_tro(tk)
+    while True:
+        print(f"\n===== {TIEU_DE[tk['vai_tro']]} - {tk['ho_ten']} =====")
+        for i, (nhan, _) in enumerate(muc, 1):
+            print(f"{i}. {nhan}")
+        print("0. Dang xuat")
+        chon = input("Chon chuc nang: ").strip()
+        if chon == "0":
+            return
+        if chon.isdigit() and 1 <= int(chon) <= len(muc):
+            print()
+            muc[int(chon) - 1][1]()
+        else:
+            print("Lua chon khong hop le, vui long chon lai.")
 
 
 def main():
+    tai()
     while True:
-        print(MENU)
-        lua_chon = input("Chon chuc nang: ").strip()
-        if lua_chon == "0":
+        tk = dang_nhap()
+        if tk is None:
+            print("Dang nhap that bai 3 lan. Thoat chuong trinh.")
+            break
+        phien["tai_khoan"] = tk
+        ghi_log("DANG_NHAP", tk["vai_tro"])
+        chay_menu(tk)
+        ghi_log("DANG_XUAT")
+        phien["tai_khoan"] = None
+        if input("Dang nhap tai khoan khac? (y/n): ").strip().lower() != "y":
             print("Tam biet!")
             break
-        ham = CHUC_NANG.get(lua_chon)
-        if ham:
-            ham()
-        else:
-            print("Lua chon khong hop le, vui long chon lai.")
 
 
 if __name__ == "__main__":
