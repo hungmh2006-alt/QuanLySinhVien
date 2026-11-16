@@ -1,0 +1,7 @@
+print("CHUONG TRINH QUAN LY SINH VIEN")
+
+ten = input("Nhap ten sinh vien: ")
+tuoi = int(input("Nhap tuoi: "))
+
+print("Ten sinh vien:", ten)
+print("Tuoi:", tuoi)
