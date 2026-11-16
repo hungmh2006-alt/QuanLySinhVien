@@ -1,24 +1,44 @@
+from sinhvien import (
+    them_sinh_vien,
+    hien_thi_sinh_vien,
+    tim_sinh_vien,
+    xoa_sinh_vien,
+    sua_sinh_vien,
+)
 
-from sinhvien import them_sinh_vien, hien_thi_sinh_vien
+MENU = """
+===== QUAN LY SINH VIEN =====
+1. Them sinh vien
+2. Hien thi danh sach
+3. Tim sinh vien theo ma
+4. Xoa sinh vien theo ma
+5. Sua thong tin sinh vien
+0. Thoat
+=============================
+"""
 
-while True:
-    print("\n===== QUAN LY SINH VIEN =====")
-    print("1. Them sinh vien")
-    print("2. Hien thi sinh vien")
-    print("3. Thoat")
+CHUC_NANG = {
+    "1": them_sinh_vien,
+    "2": hien_thi_sinh_vien,
+    "3": tim_sinh_vien,
+    "4": xoa_sinh_vien,
+    "5": sua_sinh_vien,
+}
 
-    lua_chon = input("Nhap lua chon: ")
 
-    if lua_chon == "1":
-        them_sinh_vien()
+def main():
+    while True:
+        print(MENU)
+        lua_chon = input("Chon chuc nang: ").strip()
+        if lua_chon == "0":
+            print("Tam biet!")
+            break
+        ham = CHUC_NANG.get(lua_chon)
+        if ham:
+            ham()
+        else:
+            print("Lua chon khong hop le, vui long chon lai.")
 
-    elif lua_chon == "2":
-        hien_thi_sinh_vien()
 
-    elif lua_chon == "3":
-        print("Tam biet!")
-        break
-
-    else:
-        print("Lua chon khong hop le!")
-
+if __name__ == "__main__":
+    main()
