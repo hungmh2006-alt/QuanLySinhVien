@@ -1,7 +1,24 @@
-print("CHUONG TRINH QUAN LY SINH VIEN")
 
-ten = input("Nhap ten sinh vien: ")
-tuoi = int(input("Nhap tuoi: "))
+from sinhvien import them_sinh_vien, hien_thi_sinh_vien
 
-print("Ten sinh vien:", ten)
-print("Tuoi:", tuoi)
+while True:
+    print("\n===== QUAN LY SINH VIEN =====")
+    print("1. Them sinh vien")
+    print("2. Hien thi sinh vien")
+    print("3. Thoat")
+
+    lua_chon = input("Nhap lua chon: ")
+
+    if lua_chon == "1":
+        them_sinh_vien()
+
+    elif lua_chon == "2":
+        hien_thi_sinh_vien()
+
+    elif lua_chon == "3":
+        print("Tam biet!")
+        break
+
+    else:
+        print("Lua chon khong hop le!")
+
